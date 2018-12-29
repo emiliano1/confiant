@@ -1,8 +1,6 @@
 import React from 'react';
 import reqwest from 'reqwest';
 
-let int = 0;
-
 class ShowId extends React.Component {
     constructor(props) {
         super(props);
@@ -14,15 +12,33 @@ class ShowId extends React.Component {
         };
     }
 
-    componentDidUpdate() {
+    componentDidMount() {
         // retry every 10 seconds until the result is ready
+        this.interval = setInterval(() => { this.showId() }, 10000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     showId() {
-        // Call /get/ + this.props.id
-        // Use X-Auth-Token '88d72110d6c27f7d231c4c3197364ef0a17551c5'
-        // and retrieve Json response
+        if (!this.props.id) return;
 
+        reqwest({
+            url: `/get/${this.props.id}`,
+            headers: {'X-Auth-Token': '88d72110d6c27f7d231c4c3197364ef0a17551c5'},
+        }).then(data => {
+            this.setState({
+                pending: data['pending'],
+                forecast_url: data['forecast_url'],
+                temp_f: data['temp_f'],
+                stations: data['stations']
+            });
+
+            if (!this.state.pending) {
+                clearInterval(this.interval);
+            }
+        });
     }
 
     render() {
