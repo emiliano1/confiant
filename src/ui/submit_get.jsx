@@ -13,9 +13,16 @@ class SubmitGet extends React.Component {
     submitRequest() {
         this.setState({ display: false });
 
-        // Call /get/
-        // Use X-Auth-Token '88d72110d6c27f7d231c4c3197364ef0a17551c5'
-        // and callback with id
+        reqwest({
+            url: '/get/',
+            headers: {'X-Auth-Token': '88d72110d6c27f7d231c4c3197364ef0a17551c5'},
+        }).then(data => {
+            if (data['success']) {
+                this.props.callback(data['id']);
+            } else {
+                this.setState({ display: true });
+            }
+        }).fail(() => this.setState({ display: true }));
     }
 
     render() {
